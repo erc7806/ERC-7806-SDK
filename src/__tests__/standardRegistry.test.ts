@@ -8,7 +8,7 @@ import {
   getStandardRegistryTypedDataHash,
   signStandardRegistryPermission,
   recoverStandardRegistrySigner,
-  StandardRegistrySDK,
+  StandardRegistry,
   STANDARD_REGISTRY_TYPES,
 } from '../index';
 
@@ -19,10 +19,9 @@ const mockSigner = {
 } as unknown as ethers.Signer;
 
 describe('StandardRegistry SDK', () => {
-  const contractAddress = '0x1234567890123456789012345678901234567890';
-  const chainId = 1;
-  const standardAddress = '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd';
-  const nonce = '12345';
+  const contractAddress = '0x1EcBE25525F6e6cDe8631e602Df6D55D3967cDF8';
+  const chainId = 11155111;
+  const standard = '0xeEDb221A8fA468A5469F1770Ca13cB6e20EdCB39';
 
   describe('Domain creation', () => {
     test('should create correct StandardRegistry domain', () => {
@@ -41,8 +40,8 @@ describe('StandardRegistry SDK', () => {
         contractAddress,
         chainId,
         true,
-        standardAddress,
-        parseInt(nonce)
+        standard,
+        12345
       );
       
       expect(hash).toBeDefined();
@@ -56,14 +55,13 @@ describe('StandardRegistry SDK', () => {
     });
 
     test('should sign permission with provided nonce', async () => {
-      const testNonce = 12345;
       const [signature, signerAddress] = await signStandardRegistryPermission(
         mockSigner,
         contractAddress,
         chainId,
         true,
-        standardAddress,
-        testNonce
+        standard,
+        12345
       );
 
       expect(signature).toBe('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b');
@@ -78,22 +76,21 @@ describe('StandardRegistry SDK', () => {
         { Permission: STANDARD_REGISTRY_TYPES.Permission },
         expect.objectContaining({
           registering: true,
-          standard: standardAddress,
-          nonce: testNonce.toString()
+          standard: standard,
+          nonce: "12345"
         })
       );
       expect(mockSigner.getAddress).toHaveBeenCalled();
     });
 
     test('should sign permission and return signer address', async () => {
-      const testNonce = 67890;
       const [signature, signerAddress] = await signStandardRegistryPermission(
         mockSigner,
         contractAddress,
         chainId,
         false,
-        standardAddress,
-        testNonce
+        standard,
+        67890
       );
 
       expect(signature).toBe('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b');
@@ -104,21 +101,18 @@ describe('StandardRegistry SDK', () => {
   describe('Real world example test', () => {
     test('should recover correct signer from provided signature', () => {
       // Test data provided by user
-      const testContractAddress = '0x1EcBE25525F6e6cDe8631e602Df6D55D3967cDF8';
-      const testChainId = 11155111;
-      const testStandard = '0xeEDb221A8fA468A5469F1770Ca13cB6e20EdCB39';
-      const testRegistering = true;
-      const testNonce = 1743744596651;
-      const testSignature = '0x835cdaf7384aa7ad82559926e6dda6470c7ad368a354e019cbc4a59be0a9d95a52430d807d77bd490db70fdbf45056fca9dc4626b88b8e87ea06d37d187225f61b';
+      const registering = true;
+      const nonce = 1743744596651;
+      const signature = '0x835cdaf7384aa7ad82559926e6dda6470c7ad368a354e019cbc4a59be0a9d95a52430d807d77bd490db70fdbf45056fca9dc4626b88b8e87ea06d37d187225f61b';
       const expectedSigner = '0x0970c10Ea0605dBD54564AcFcd93237865Ee7E13';
 
       // Generate the typed data hash
       const typedDataHash = getStandardRegistryTypedDataHash(
-        testContractAddress,
-        testChainId,
-        testRegistering,
-        testStandard,
-        testNonce
+        contractAddress,
+        chainId,
+        registering,
+        standard,
+        nonce
       );
 
       expect(typedDataHash).toBeDefined();
@@ -126,12 +120,12 @@ describe('StandardRegistry SDK', () => {
 
       // Recover the signer
       const recoveredSigner = recoverStandardRegistrySigner(
-        testContractAddress,
-        testChainId,
-        testRegistering,
-        testStandard,
-        testNonce,
-        testSignature
+        contractAddress,
+        chainId,
+        registering,
+        standard,
+        nonce,
+        signature
       );
 
       expect(recoveredSigner.toLowerCase()).toBe(expectedSigner.toLowerCase());
@@ -144,7 +138,7 @@ describe('StandardRegistry SDK', () => {
     });
 
     test('should initialize correctly', () => {
-      const sdk = new StandardRegistrySDK(contractAddress, chainId);
+      const sdk = new StandardRegistry(contractAddress, chainId);
       const domain = sdk.getDomain();
       
       expect(domain.verifyingContract).toBe(contractAddress);
@@ -152,19 +146,19 @@ describe('StandardRegistry SDK', () => {
     });
 
     test('should get typed data hash using SDK class', () => {
-      const sdk = new StandardRegistrySDK(contractAddress, chainId);
-      const hash = sdk.getTypedDataHash(true, standardAddress, parseInt(nonce));
+      const sdk = new StandardRegistry(contractAddress, chainId);
+      const hash = sdk.getTypedDataHash(true, standard, 12345);
       
       expect(hash).toBeDefined();
       expect(hash).toMatch(/^0x[a-fA-F0-9]{64}$/);
     });
 
     test('should sign permission using SDK class', async () => {
-      const sdk = new StandardRegistrySDK(contractAddress, chainId);
+      const sdk = new StandardRegistry(contractAddress, chainId);
       const [signature, signerAddress] = await sdk.signPermission(
         mockSigner,
         true,
-        standardAddress,
+        standard,
         67890
       );
 
@@ -173,22 +167,17 @@ describe('StandardRegistry SDK', () => {
     });
 
     test('should recover signer using SDK class', () => {
-      const sdk = new StandardRegistrySDK(contractAddress, chainId);
-      
       // Use the real world test data
-      const testContractAddress = '0x1EcBE25525F6e6cDe8631e602Df6D55D3967cDF8';
-      const testChainId = 11155111;
-      const testStandard = '0xeEDb221A8fA468A5469F1770Ca13cB6e20EdCB39';
-      const testNonce = 1743744596651;
-      const testSignature = '0x835cdaf7384aa7ad82559926e6dda6470c7ad368a354e019cbc4a59be0a9d95a52430d807d77bd490db70fdbf45056fca9dc4626b88b8e87ea06d37d187225f61b';
+      const nonce = 1743744596651;
+      const signature = '0x835cdaf7384aa7ad82559926e6dda6470c7ad368a354e019cbc4a59be0a9d95a52430d807d77bd490db70fdbf45056fca9dc4626b88b8e87ea06d37d187225f61b';
       const expectedSigner = '0x0970c10Ea0605dBD54564AcFcd93237865Ee7E13';
 
-      const testSdk = new StandardRegistrySDK(testContractAddress, testChainId);
-      const recoveredSigner = testSdk.recoverSigner(
+      const sr = new StandardRegistry(contractAddress, chainId);
+      const recoveredSigner = sr.recoverSigner(
         true,
-        testStandard,
-        testNonce,
-        testSignature
+        standard,
+        nonce,
+        signature
       );
 
       expect(recoveredSigner.toLowerCase()).toBe(expectedSigner.toLowerCase());

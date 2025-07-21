@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "contract-example": "node contractExample.js",
     "install-sdk": "npm install erc-7806-sdk@latest"
   },
   "keywords": [
@@ -16,6 +17,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "erc-7806-sdk": "^0.0.1"
+    "erc-7806-sdk": "^0.0.2",
+    "ethers": "^6.8.0"
   }
 } 
