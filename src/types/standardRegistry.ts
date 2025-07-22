@@ -12,10 +12,15 @@ export interface StandardRegistryDomain {
 export interface StandardRegistryPermission {
   registering: boolean;
   standard: string; // address
-  nonce: string; // uint256 as string
+  nonce: number; // uint256
 }
 
 export interface SigningResult {
   signature: string;
   signerAddress: string;
 } 
+
+export interface RegistrationStatus {
+  isRegistered: boolean;
+  error?: string;
+}
