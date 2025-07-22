@@ -16,9 +16,6 @@
   ],
   "author": "",
   "license": "MIT",
-  "dependencies": {
-    "ethers": "^5.7.2"
-  },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
@@ -30,5 +27,8 @@
     "ts-jest": "^29.1.1",
     "tslib": "^2.8.1",
     "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "ethers": "^6.13.4"
   }
 }

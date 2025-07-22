@@ -1,6 +1,8 @@
-import { ethers } from 'ethers';
+import { AbiCoder } from 'ethers';
 import { IERC20 } from './erc20';
 import { Action } from '../types/action';
+
+const abiCoder = new AbiCoder();
 
 /**
  * Encodes a TRANSFER_ETH action
@@ -14,7 +16,7 @@ export function encodeTransferEth(action: Action): string {
 
   // For ETH transfer, we just need to encode the receiver and amount
   // The calldata is empty for ETH transfers
-  return ethers.utils.defaultAbiCoder.encode(
+  return abiCoder.encode(
     ['address', 'uint256', 'bytes'],
     [action.receiver, action.amount, '0x']
   );
@@ -38,7 +40,7 @@ export function encodeTransferErc20(action: Action): string {
 
   // Encode the final call with token address, 0 ETH amount, and the transfer calldata
   // This matches the Solidity example: abi.encode(tokenAddress, uint256(0), abi.encodeWithSelector(IERC20.transfer.selector, address(receiver), amount));
-  return ethers.utils.defaultAbiCoder.encode(
+  return abiCoder.encode(
     ['address', 'uint256', 'bytes'],
     [action.tokenAddress, '0', transferCalldata]
   );
@@ -55,7 +57,7 @@ export function encodeGeneralExecution(action: Action): string {
   }
 
   // For general execution, we encode the target address, amount, and calldata
-  return ethers.utils.defaultAbiCoder.encode(
+  return abiCoder.encode(
     ['address', 'uint256', 'bytes'],
     [action.targetAddress, action.amount, action.calldata]
   );

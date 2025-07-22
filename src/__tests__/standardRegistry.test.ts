@@ -2,7 +2,7 @@
  * Tests for StandardRegistry functionality
  */
 
-import { ethers } from 'ethers';
+import { type Signer } from 'ethers';
 import {
   createStandardRegistryDomain,
   getStandardRegistryTypedDataHash,
@@ -13,9 +13,9 @@ import {
 
 // Mock signer for testing
 const mockSigner = {
-  _signTypedData: jest.fn().mockResolvedValue('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b'),
+  signTypedData: jest.fn().mockResolvedValue('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b'),
   getAddress: jest.fn().mockResolvedValue('0x1234567890123456789012345678901234567890')
-} as unknown as ethers.Signer;
+} as unknown as Signer;
 
 describe('StandardRegistry SDK', () => {
   const contractAddress = '0x1EcBE25525F6e6cDe8631e602Df6D55D3967cDF8';
@@ -65,7 +65,7 @@ describe('StandardRegistry SDK', () => {
 
       expect(signature).toBe('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b');
       expect(signerAddress).toBe('0x1234567890123456789012345678901234567890');
-      expect((mockSigner as any)._signTypedData).toHaveBeenCalledWith(
+      expect((mockSigner as any).signTypedData).toHaveBeenCalledWith(
         expect.objectContaining({
           name: 'StandardRegistry',
           version: '2',

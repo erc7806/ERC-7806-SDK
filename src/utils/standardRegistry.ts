@@ -2,7 +2,11 @@
  * StandardRegistry utilities for EIP-712 signature generation
  */
 
-import { ethers } from 'ethers';
+import { 
+  Signer, 
+  TypedDataEncoder, 
+  verifyTypedData, 
+} from 'ethers';
 import { 
   StandardRegistryDomain, 
   StandardRegistryPermission
@@ -51,7 +55,7 @@ export function getStandardRegistryTypedDataHash(
   };
 
   // Use ethers to compute the typed data hash
-  return ethers.utils._TypedDataEncoder.hash(domain, permissionTypes, permission);
+  return TypedDataEncoder.hash(domain, permissionTypes, permission);
 }
 
 /**
@@ -59,7 +63,7 @@ export function getStandardRegistryTypedDataHash(
  * This matches the Solidity implementation that validates the signature
  */
 export async function signStandardRegistryPermission(
-  signer: ethers.Signer,
+  signer: Signer,
   contractAddress: string,
   chainId: number,
   registering: boolean,
@@ -73,8 +77,8 @@ export async function signStandardRegistryPermission(
     nonce,
   };
 
-  // Sign the typed data using ethers.js v5
-  const signature = await (signer as any)._signTypedData(
+  // Sign the typed data using ethers.js v6
+  const signature = await signer.signTypedData(
     domain,
     permissionTypes,
     permission
@@ -98,13 +102,12 @@ export function recoverStandardRegistrySigner(
   nonce: number,
   signature: string
 ): string {
-  const typedDataHash = getStandardRegistryTypedDataHash(
-    contractAddress,
-    chainId,
+  const domain = createStandardRegistryDomain(contractAddress, chainId);
+  const permission: StandardRegistryPermission = {
     registering,
     standard,
-    nonce
-  );
+    nonce,
+  };
 
-  return ethers.utils.recoverAddress(typedDataHash, signature);
+  return verifyTypedData(domain, permissionTypes, permission, signature);
 } 

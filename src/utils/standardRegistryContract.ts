@@ -2,8 +2,8 @@
  * StandardRegistry contract helper utilities
  */
 
-import { ethers, Signer } from 'ethers';
-import type { ContractCallResult } from '../types/contractHelper';
+import { Contract, Signer, ContractRunner } from 'ethers';
+import { ContractCallResult } from '../types/contractHelper';
 import type { RegistrationStatus } from '../types/standardRegistry';
 
 // StandardRegistry contract ABI
@@ -17,13 +17,13 @@ const STANDARD_REGISTRY_ABI = [
  * Check if a standard is registered for a specific signer
  */
 export async function isStandardRegistered(
-  provider: ethers.providers.JsonRpcProvider,
-  registryAddress: string,
+  contractRunner: ContractRunner,
+  standardRegistryAddress: string,
   signerAddress: string,
   standardAddress: string
 ): Promise<RegistrationStatus> {
   try {
-    const standardRegistryContract = getStandardRegistryContract(registryAddress, provider);
+    const standardRegistryContract = getStandardRegistryContract(standardRegistryAddress, contractRunner);
 
     const isRegistered = await standardRegistryContract.isRegistered(
       signerAddress,
@@ -46,7 +46,7 @@ export async function isStandardRegistered(
  * Register or unregister a standard using direct transaction
  */
 export async function updateStandardRegistration(
-  signer: ethers.Signer,
+  signer: Signer,
   registryAddress: string,
   standardAddress: string,
   registering: boolean,
@@ -89,7 +89,7 @@ export async function updateStandardRegistration(
  * Register a standard using direct transaction (convenience function)
  */
 export async function registerStandard(
-  signer: ethers.Signer,
+  signer: Signer,
   registryAddress: string,
   standardAddress: string,
   nonce?: number
@@ -107,7 +107,7 @@ export async function registerStandard(
  * Unregister a standard using direct transaction (convenience function)
  */
 export async function unregisterStandard(
-  signer: ethers.Signer,
+  signer: Signer,
   registryAddress: string,
   standardAddress: string,
   nonce?: number
@@ -125,7 +125,7 @@ export async function unregisterStandard(
  * Register or unregister a standard using a signature (gasless)
  */
 export async function permitStandardRegistration(
-  signer: ethers.Signer,
+  signer: Signer,
   registryAddress: string,
   signerAddress: string,
   standardAddress: string,
@@ -169,12 +169,12 @@ export async function permitStandardRegistration(
  * Get the StandardRegistry contract instance
  */
 export function getStandardRegistryContract(
-  registryAddress: string,
-  signerOrProvider: Signer | ethers.providers.JsonRpcProvider
-): ethers.Contract {
-  return new ethers.Contract(
-    registryAddress,
+  address: string,
+  contractRunner: ContractRunner
+): Contract {
+  return new Contract(
+    address,
     STANDARD_REGISTRY_ABI,
-    signerOrProvider
+    contractRunner
   );
 } 

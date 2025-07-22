@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { Interface } from 'ethers';
 
 // ERC20 ABI for transfer function
 const ERC20_ABI = [
@@ -6,4 +6,4 @@ const ERC20_ABI = [
 ];
 
 // Create an interface for the ERC20 contract
-export const IERC20 = new ethers.utils.Interface(ERC20_ABI);
+export const IERC20 = new Interface(ERC20_ABI);

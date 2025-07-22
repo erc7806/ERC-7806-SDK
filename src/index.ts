@@ -49,7 +49,7 @@ export { buildRelayExecutionIntent } from './utils/relayExecution';
 export const SDK_VERSION = '0.0.4';
 
 // Import ethers and functions for the class implementation
-import { type Signer, ethers } from 'ethers';
+import { type Signer, type JsonRpcProvider } from 'ethers';
 import {
   createStandardRegistryDomain as _createStandardRegistryDomain,
   signStandardRegistryPermission as _signStandardRegistryPermission,
@@ -145,7 +145,7 @@ export class StandardRegistry {
    * Check if a standard is registered for a specific signer
    */
   async isStandardRegistered(
-    provider: ethers.providers.JsonRpcProvider,
+    provider: JsonRpcProvider,
     signerAddress: string,
     standardAddress: string
   ) {
@@ -214,7 +214,7 @@ export class StandardRegistry {
   /**
    * Get the contract instance for direct interaction
    */
-  getContract(signerOrProvider: Signer | ethers.providers.JsonRpcProvider) {
+  getContract(signerOrProvider: Signer | JsonRpcProvider) {
     return _getStandardRegistryContract(this.contractAddress, signerOrProvider);
   }
 }
