@@ -9,12 +9,11 @@ import {
   signStandardRegistryPermission,
   recoverStandardRegistrySigner,
   StandardRegistry,
-  STANDARD_REGISTRY_TYPES,
 } from '../index';
 
 // Mock signer for testing
 const mockSigner = {
-  signTypedData: jest.fn().mockResolvedValue('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b'),
+  _signTypedData: jest.fn().mockResolvedValue('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b'),
   getAddress: jest.fn().mockResolvedValue('0x1234567890123456789012345678901234567890')
 } as unknown as ethers.Signer;
 
@@ -26,7 +25,7 @@ describe('StandardRegistry SDK', () => {
   describe('Domain creation', () => {
     test('should create correct StandardRegistry domain', () => {
       const domain = createStandardRegistryDomain(contractAddress, chainId);
-      
+
       expect(domain.name).toBe('StandardRegistry');
       expect(domain.version).toBe('2');
       expect(domain.chainId).toBe(chainId);
@@ -43,7 +42,7 @@ describe('StandardRegistry SDK', () => {
         standard,
         12345
       );
-      
+
       expect(hash).toBeDefined();
       expect(hash).toMatch(/^0x[a-fA-F0-9]{64}$/);
     });
@@ -66,18 +65,24 @@ describe('StandardRegistry SDK', () => {
 
       expect(signature).toBe('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b');
       expect(signerAddress).toBe('0x1234567890123456789012345678901234567890');
-      expect(mockSigner.signTypedData).toHaveBeenCalledWith(
+      expect((mockSigner as any)._signTypedData).toHaveBeenCalledWith(
         expect.objectContaining({
           name: 'StandardRegistry',
           version: '2',
           chainId,
           verifyingContract: contractAddress
         }),
-        { Permission: STANDARD_REGISTRY_TYPES.Permission },
+        {
+          Permission: [
+            { name: 'registering', type: 'bool' },
+            { name: 'standard', type: 'address' },
+            { name: 'nonce', type: 'uint256' },
+          ],
+        },
         expect.objectContaining({
           registering: true,
           standard: standard,
-          nonce: "12345"
+          nonce: 12345
         })
       );
       expect(mockSigner.getAddress).toHaveBeenCalled();
@@ -140,7 +145,7 @@ describe('StandardRegistry SDK', () => {
     test('should initialize correctly', () => {
       const sdk = new StandardRegistry(contractAddress, chainId);
       const domain = sdk.getDomain();
-      
+
       expect(domain.verifyingContract).toBe(contractAddress);
       expect(domain.chainId).toBe(chainId);
     });
@@ -148,7 +153,7 @@ describe('StandardRegistry SDK', () => {
     test('should get typed data hash using SDK class', () => {
       const sdk = new StandardRegistry(contractAddress, chainId);
       const hash = sdk.getTypedDataHash(true, standard, 12345);
-      
+
       expect(hash).toBeDefined();
       expect(hash).toMatch(/^0x[a-fA-F0-9]{64}$/);
     });
@@ -181,27 +186,6 @@ describe('StandardRegistry SDK', () => {
       );
 
       expect(recoveredSigner.toLowerCase()).toBe(expectedSigner.toLowerCase());
-    });
-  });
-
-  describe('Type definitions', () => {
-    test('should have correct type structure for Permission', () => {
-      const permissionType = STANDARD_REGISTRY_TYPES.Permission;
-      
-      expect(permissionType).toHaveLength(3);
-      expect(permissionType[0]).toEqual({ name: 'registering', type: 'bool' });
-      expect(permissionType[1]).toEqual({ name: 'standard', type: 'address' });
-      expect(permissionType[2]).toEqual({ name: 'nonce', type: 'uint256' });
-    });
-
-    test('should have correct type structure for EIP712Domain', () => {
-      const domainType = STANDARD_REGISTRY_TYPES.EIP712Domain;
-      
-      expect(domainType).toHaveLength(4);
-      expect(domainType[0]).toEqual({ name: 'name', type: 'string' });
-      expect(domainType[1]).toEqual({ name: 'version', type: 'string' });
-      expect(domainType[2]).toEqual({ name: 'chainId', type: 'uint256' });
-      expect(domainType[3]).toEqual({ name: 'verifyingContract', type: 'address' });
     });
   });
 }); 

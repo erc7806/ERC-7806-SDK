@@ -9,11 +9,9 @@ export type {
   SigningResult,
 } from './types/standardRegistry';
 
-export type {
-  ContractCallResult,
-  RegistrationStatus,
-  StandardRegistryContract,
-} from './types/contractHelper';
+export type { ContractCallResult } from './types/contractHelper';
+
+export type { Action, ActionType } from './types/action';
 
 // Utilities
 export {
@@ -21,7 +19,6 @@ export {
   getStandardRegistryTypedDataHash,
   signStandardRegistryPermission,
   recoverStandardRegistrySigner,
-  STANDARD_REGISTRY_TYPES,
 } from './utils/standardRegistry';
 
 // Contract Helpers
@@ -32,14 +29,28 @@ export {
   unregisterStandard,
   permitStandardRegistration,
   getStandardRegistryContract,
-} from './utils/contractHelper';
+} from './utils/standardRegistryContract';
+
+// Action Encoding
+export {
+  encodeAction,
+  encodeTransferEth,
+  encodeTransferErc20,
+  encodeGeneralExecution,
+} from './utils/action';
+
+// ERC20 Interface
+export { IERC20 } from './utils/erc20';
+
+// Relay Execution
+export { buildRelayExecutionIntent } from './utils/relayExecution';
 
 // Constants
-export const SDK_VERSION = '0.0.2';
+export const SDK_VERSION = '0.0.4';
 
 // Import ethers and functions for the class implementation
-import { type Signer, type JsonRpcProvider } from 'ethers';
-import { 
+import { type Signer, ethers } from 'ethers';
+import {
   createStandardRegistryDomain as _createStandardRegistryDomain,
   signStandardRegistryPermission as _signStandardRegistryPermission,
   getStandardRegistryTypedDataHash as _getStandardRegistryTypedDataHash,
@@ -52,7 +63,9 @@ import {
   unregisterStandard as _unregisterStandard,
   permitStandardRegistration as _permitStandardRegistration,
   getStandardRegistryContract as _getStandardRegistryContract
-} from './utils/contractHelper';
+} from './utils/standardRegistryContract';
+import { Action } from './types/action';
+import { buildRelayExecutionIntent } from './utils/relayExecution';
 
 /**
  * Main SDK class for StandardRegistry operations
@@ -132,7 +145,7 @@ export class StandardRegistry {
    * Check if a standard is registered for a specific signer
    */
   async isStandardRegistered(
-    provider: JsonRpcProvider,
+    provider: ethers.providers.JsonRpcProvider,
     signerAddress: string,
     standardAddress: string
   ) {
@@ -201,7 +214,34 @@ export class StandardRegistry {
   /**
    * Get the contract instance for direct interaction
    */
-  getContract(signerOrProvider: Signer | JsonRpcProvider) {
+  getContract(signerOrProvider: Signer | ethers.providers.JsonRpcProvider) {
     return _getStandardRegistryContract(this.contractAddress, signerOrProvider);
   }
-} 
+}
+
+/**
+ * Class for building relay execution intents
+ */
+export class RelayExecution {
+  private contractAddress: string;
+  private chainId: number;
+
+  constructor(contractAddress: string, chainId: number) {
+    this.contractAddress = contractAddress;
+    this.chainId = chainId;
+  }
+
+  /**
+   * Build a relay execution intent
+   */
+  buildIntent(
+    paymentTokenAddress: string,
+    paymentTokenAmount: bigint,
+    actions: Action[],
+    expiration: number,
+    signer: Signer,
+    relayerAddress?: string
+  ) {
+    return buildRelayExecutionIntent(this.chainId, this.contractAddress, paymentTokenAddress, paymentTokenAmount, actions, expiration, signer, relayerAddress);
+  }
+}

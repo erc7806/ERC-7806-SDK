@@ -8,6 +8,8 @@ A TypeScript SDK for integrating with ERC-7806 smart contract account standard o
 - 🏗️ **StandardRegistry Support** - Complete implementation for StandardRegistry contract permissions
 - 📡 **On-chain Integration** - Direct contract interaction with JsonRpcProvider
 - 💸 **Gasless Transactions** - Support for signature-based permit functions
+- 🎯 **Action Encoding** - Utilities for encoding ETH transfers, ERC20 transfers, and general contract calls
+- 🔄 **Relay Execution** - Support for building and signing relay execution intents
 - 🔧 **TypeScript Support** - Full TypeScript support with comprehensive type definitions
 - 🌐 **EVM Compatible** - Works with any EVM-compatible blockchain
 
@@ -41,6 +43,58 @@ const [signature, signerAddress] = await signStandardRegistryPermission(
 );
 ```
 
+### Action Encoding
+
+```javascript
+import { encodeAction, Action } from 'erc-7806-sdk';
+
+// ETH Transfer Action
+const ethAction: Action = {
+  type: 'TRANSFER_ETH',
+  receiver: '0x...',
+  amount: '1000000000000000000' // 1 ETH
+};
+
+// ERC20 Transfer Action
+const erc20Action: Action = {
+  type: 'TRANSFER_ERC20',
+  receiver: '0x...',
+  amount: '1000000',
+  tokenAddress: '0x...'
+};
+
+// General Execution Action
+const generalAction: Action = {
+  type: 'GENERAL_EXECUTION',
+  targetAddress: '0x...',
+  amount: '0',
+  calldata: '0x...'
+};
+
+// Encode actions
+const encodedEthTransfer = encodeAction(ethAction);
+const encodedErc20Transfer = encodeAction(erc20Action);
+const encodedExecution = encodeAction(generalAction);
+```
+
+### Relay Execution
+
+```javascript
+import { RelayExecution } from 'erc-7806-sdk';
+
+const relayExecution = new RelayExecution(relayExecutionAddress, chainId);
+
+// Build a relay execution intent
+const intent = await relayExecution.buildIntent(
+  paymentTokenAddress,
+  paymentTokenAmount,
+  [ethAction, erc20Action], // Array of actions to execute
+  60, // expiration in minutes
+  signer,
+  relayerAddress // optional
+);
+```
+
 ### Contract Interactions
 
 ```javascript
@@ -70,15 +124,15 @@ const result = await registerStandard(
 ### SDK Class Usage
 
 ```javascript
-import { StandardRegistrySDK } from 'erc-7806-sdk';
+import { StandardRegistry } from 'erc-7806-sdk';
 
-const sdk = new StandardRegistrySDK(registryAddress, chainId);
+const registry = new StandardRegistry(registryAddress, chainId);
 
 // Check registration status
-const status = await sdk.isStandardRegistered(provider, signerAddress, standardAddress);
+const status = await registry.isStandardRegistered(provider, signerAddress, standardAddress);
 
 // Register standard
-const result = await sdk.registerStandard(signer, standardAddress, Date.now());
+const result = await registry.registerStandard(signer, standardAddress, Date.now());
 ```
 
 ## API Reference
@@ -93,6 +147,20 @@ Generate unsigned typed data hash for StandardRegistry permissions.
 
 #### `recoverStandardRegistrySigner(contractAddress, chainId, registering, standard, nonce, signature)`
 Recover signer address from a StandardRegistry signature.
+
+### Action Encoding Functions
+
+#### `encodeAction(action: Action)`
+Encode any type of action based on its type.
+
+#### `encodeTransferEth(action: Action)`
+Encode an ETH transfer action.
+
+#### `encodeTransferErc20(action: Action)`
+Encode an ERC20 token transfer action.
+
+#### `encodeGeneralExecution(action: Action)`
+Encode a general contract execution action.
 
 ### Contract Helper Functions
 

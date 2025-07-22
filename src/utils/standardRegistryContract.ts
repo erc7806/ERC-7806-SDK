@@ -2,8 +2,9 @@
  * StandardRegistry contract helper utilities
  */
 
-import { ethers, type JsonRpcProvider, type Signer } from 'ethers';
-import type { ContractCallResult, RegistrationStatus } from '../types/contractHelper';
+import { ethers, Signer } from 'ethers';
+import type { ContractCallResult } from '../types/contractHelper';
+import type { RegistrationStatus } from '../types/standardRegistry';
 
 // StandardRegistry contract ABI
 const STANDARD_REGISTRY_ABI = [
@@ -16,33 +17,15 @@ const STANDARD_REGISTRY_ABI = [
  * Check if a standard is registered for a specific signer
  */
 export async function isStandardRegistered(
-  provider: JsonRpcProvider,
+  provider: ethers.providers.JsonRpcProvider,
   registryAddress: string,
   signerAddress: string,
   standardAddress: string
 ): Promise<RegistrationStatus> {
   try {
-    const standardRegistry = new ethers.Contract(
-      registryAddress,
-      STANDARD_REGISTRY_ABI,
-      provider
-    ); // explicitly add runner;
+    const standardRegistryContract = getStandardRegistryContract(registryAddress, provider);
 
-    // const network = await provider.getNetwork();
-    // console.log('Connected to network:', network.name, 'Chain ID:', Number(network.chainId));
-
-    console.log('provider:', provider instanceof ethers.JsonRpcProvider);
-    console.log('blockNumber:', await provider.getBlockNumber());
-    console.log('signerAddress:', signerAddress, typeof signerAddress, signerAddress.length);
-    console.log('standardAddress:', standardAddress, typeof standardAddress, standardAddress.length);
-    console.log('ethers.isAddress(signerAddress):', ethers.isAddress(signerAddress));
-    console.log('ethers.isAddress(standardAddress):', ethers.isAddress(standardAddress));
-
-    if (!(provider instanceof ethers.JsonRpcProvider)) {
-      throw new Error('Invalid provider');
-    }
-
-    const isRegistered = await standardRegistry.isRegistered(
+    const isRegistered = await standardRegistryContract.isRegistered(
       signerAddress,
       standardAddress
     );
@@ -63,24 +46,20 @@ export async function isStandardRegistered(
  * Register or unregister a standard using direct transaction
  */
 export async function updateStandardRegistration(
-  signer: Signer,
+  signer: ethers.Signer,
   registryAddress: string,
   standardAddress: string,
   registering: boolean,
   nonce?: number
 ): Promise<ContractCallResult> {
   try {
-    const standardRegistry = new ethers.Contract(
-      registryAddress,
-      STANDARD_REGISTRY_ABI,
-      signer
-    );
+    const standardRegistryContract = getStandardRegistryContract(registryAddress, signer);
 
     // Use provided nonce or generate a random one
-    const txNonce = nonce || BigInt(Math.floor(Math.random() * 1000000000000000000));
+    const txNonce = nonce || Math.floor(Math.random() * 1000000000000000000);
     
     // Create the transaction
-    const tx = await standardRegistry.update(
+    const tx = await standardRegistryContract.update(
       registering,
       standardAddress,
       txNonce
@@ -110,7 +89,7 @@ export async function updateStandardRegistration(
  * Register a standard using direct transaction (convenience function)
  */
 export async function registerStandard(
-  signer: Signer,
+  signer: ethers.Signer,
   registryAddress: string,
   standardAddress: string,
   nonce?: number
@@ -128,7 +107,7 @@ export async function registerStandard(
  * Unregister a standard using direct transaction (convenience function)
  */
 export async function unregisterStandard(
-  signer: Signer,
+  signer: ethers.Signer,
   registryAddress: string,
   standardAddress: string,
   nonce?: number
@@ -146,7 +125,7 @@ export async function unregisterStandard(
  * Register or unregister a standard using a signature (gasless)
  */
 export async function permitStandardRegistration(
-  signer: Signer,
+  signer: ethers.Signer,
   registryAddress: string,
   signerAddress: string,
   standardAddress: string,
@@ -155,14 +134,10 @@ export async function permitStandardRegistration(
   signature: string
 ): Promise<ContractCallResult> {
   try {
-    const standardRegistry = new ethers.Contract(
-      registryAddress,
-      STANDARD_REGISTRY_ABI,
-      signer
-    );
+    const standardRegistryContract = getStandardRegistryContract(registryAddress, signer);
     
     // Create the permit transaction
-    const tx = await standardRegistry.permit(
+    const tx = await standardRegistryContract.permit(
       registering,
       signerAddress,
       standardAddress,
@@ -190,14 +165,12 @@ export async function permitStandardRegistration(
   }
 }
 
-
-
 /**
  * Get the StandardRegistry contract instance
  */
 export function getStandardRegistryContract(
   registryAddress: string,
-  signerOrProvider: Signer | JsonRpcProvider
+  signerOrProvider: Signer | ethers.providers.JsonRpcProvider
 ): ethers.Contract {
   return new ethers.Contract(
     registryAddress,

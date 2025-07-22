@@ -2,20 +2,14 @@
  * StandardRegistry utilities for EIP-712 signature generation
  */
 
-import { ethers, type Signer } from 'ethers';
+import { ethers } from 'ethers';
 import { 
   StandardRegistryDomain, 
   StandardRegistryPermission
 } from '../types/standardRegistry';
 
 // EIP-712 type definitions for StandardRegistry
-export const STANDARD_REGISTRY_TYPES = {
-  EIP712Domain: [
-    { name: 'name', type: 'string' },
-    { name: 'version', type: 'string' },
-    { name: 'chainId', type: 'uint256' },
-    { name: 'verifyingContract', type: 'address' },
-  ],
+const permissionTypes = {
   Permission: [
     { name: 'registering', type: 'bool' },
     { name: 'standard', type: 'address' },
@@ -53,17 +47,11 @@ export function getStandardRegistryTypedDataHash(
   const permission: StandardRegistryPermission = {
     registering,
     standard,
-    nonce: nonce.toString(),
+    nonce,
   };
 
   // Use ethers to compute the typed data hash
-  const typedDataHash = ethers.TypedDataEncoder.hash(
-    domain,
-    { Permission: STANDARD_REGISTRY_TYPES.Permission },
-    permission
-  );
-
-  return typedDataHash;
+  return ethers.utils._TypedDataEncoder.hash(domain, permissionTypes, permission);
 }
 
 /**
@@ -71,7 +59,7 @@ export function getStandardRegistryTypedDataHash(
  * This matches the Solidity implementation that validates the signature
  */
 export async function signStandardRegistryPermission(
-  signer: Signer,
+  signer: ethers.Signer,
   contractAddress: string,
   chainId: number,
   registering: boolean,
@@ -82,13 +70,13 @@ export async function signStandardRegistryPermission(
   const permission: StandardRegistryPermission = {
     registering,
     standard,
-    nonce: nonce.toString(),
+    nonce,
   };
 
-  // Sign the typed data using ethers.js
-  const signature = await signer.signTypedData(
+  // Sign the typed data using ethers.js v5
+  const signature = await (signer as any)._signTypedData(
     domain,
-    { Permission: STANDARD_REGISTRY_TYPES.Permission },
+    permissionTypes,
     permission
   );
 
@@ -118,5 +106,5 @@ export function recoverStandardRegistrySigner(
     nonce
   );
 
-  return ethers.recoverAddress(typedDataHash, signature);
+  return ethers.utils.recoverAddress(typedDataHash, signature);
 } 
