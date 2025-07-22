@@ -1,6 +1,6 @@
 {
   "name": "erc-7806-sdk",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "SDK for ERC-7806 StandardRegistry",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,6 +16,9 @@
   ],
   "author": "",
   "license": "MIT",
+  "dependencies": {
+    "ethers": "^6.13.4"
+  },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
@@ -27,8 +30,5 @@
     "ts-jest": "^29.1.1",
     "tslib": "^2.8.1",
     "typescript": "^5.2.2"
-  },
-  "dependencies": {
-    "ethers": "^6.13.4"
   }
 }
