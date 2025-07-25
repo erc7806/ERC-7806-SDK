@@ -12,7 +12,7 @@ export interface StandardRegistryDomain {
 export interface StandardRegistryPermission {
   registering: boolean;
   standard: string; // address
-  nonce: number; // uint256
+  nonce: BigInt; // uint256
 }
 
 export interface SigningResult {
