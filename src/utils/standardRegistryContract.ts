@@ -50,19 +50,16 @@ export async function updateStandardRegistration(
   registryAddress: string,
   standardAddress: string,
   registering: boolean,
-  nonce?: number
+  nonce?: BigInt
 ): Promise<ContractCallResult> {
   try {
     const standardRegistryContract = getStandardRegistryContract(registryAddress, signer);
-
-    // Use provided nonce or generate a random one
-    const txNonce = nonce || Math.floor(Math.random() * 1000000000000000000);
     
     // Create the transaction
     const tx = await standardRegistryContract.update(
       registering,
       standardAddress,
-      txNonce
+      nonce ?? BigInt(Math.floor(Math.random() * 1000000000000000000))
     );
     
     if (!tx) {
@@ -92,7 +89,7 @@ export async function registerStandard(
   signer: Signer,
   registryAddress: string,
   standardAddress: string,
-  nonce?: number
+  nonce?: BigInt
 ): Promise<ContractCallResult> {
   return updateStandardRegistration(
     signer,
@@ -110,7 +107,7 @@ export async function unregisterStandard(
   signer: Signer,
   registryAddress: string,
   standardAddress: string,
-  nonce?: number
+  nonce?: BigInt
 ): Promise<ContractCallResult> {
   return updateStandardRegistration(
     signer,
@@ -130,7 +127,7 @@ export async function permitStandardRegistration(
   signerAddress: string,
   standardAddress: string,
   registering: boolean,
-  nonce: number,
+  nonce: BigInt,
   signature: string
 ): Promise<ContractCallResult> {
   try {

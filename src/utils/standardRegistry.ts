@@ -45,7 +45,7 @@ export function getStandardRegistryTypedDataHash(
   chainId: number,
   registering: boolean,
   standard: string,
-  nonce: number
+  nonce: BigInt
 ): string {
   const domain = createStandardRegistryDomain(contractAddress, chainId);
   const permission: StandardRegistryPermission = {
@@ -68,7 +68,7 @@ export async function signStandardRegistryPermission(
   chainId: number,
   registering: boolean,
   standard: string,
-  nonce: number
+  nonce: BigInt
 ): Promise<[string, string]> {
   const domain = createStandardRegistryDomain(contractAddress, chainId);
   const permission: StandardRegistryPermission = {
@@ -99,7 +99,7 @@ export function recoverStandardRegistrySigner(
   chainId: number,
   registering: boolean,
   standard: string,
-  nonce: number,
+  nonce: BigInt,
   signature: string
 ): string {
   const domain = createStandardRegistryDomain(contractAddress, chainId);
