@@ -21,6 +21,7 @@ describe('StandardRegistry SDK', () => {
   const contractAddress = '0x1EcBE25525F6e6cDe8631e602Df6D55D3967cDF8';
   const chainId = 11155111;
   const standard = '0xeEDb221A8fA468A5469F1770Ca13cB6e20EdCB39';
+  const mockNonce = BigInt(12345);
 
   describe('Domain creation', () => {
     test('should create correct StandardRegistry domain', () => {
@@ -40,7 +41,7 @@ describe('StandardRegistry SDK', () => {
         chainId,
         true,
         standard,
-        12345
+        mockNonce
       );
 
       expect(hash).toBeDefined();
@@ -53,14 +54,14 @@ describe('StandardRegistry SDK', () => {
       jest.clearAllMocks();
     });
 
-    test('should sign permission with provided nonce', async () => {
+    test('should sign permission with provided mockNonce', async () => {
       const [signature, signerAddress] = await signStandardRegistryPermission(
         mockSigner,
         contractAddress,
         chainId,
         true,
         standard,
-        12345
+        mockNonce
       );
 
       expect(signature).toBe('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b');
@@ -76,13 +77,13 @@ describe('StandardRegistry SDK', () => {
           Permission: [
             { name: 'registering', type: 'bool' },
             { name: 'standard', type: 'address' },
-            { name: 'nonce', type: 'uint256' },
+            { name: 'mockNonce', type: 'uint256' },
           ],
         },
         expect.objectContaining({
           registering: true,
           standard: standard,
-          nonce: 12345
+          mockNonce: 12345
         })
       );
       expect(mockSigner.getAddress).toHaveBeenCalled();
@@ -95,7 +96,7 @@ describe('StandardRegistry SDK', () => {
         chainId,
         false,
         standard,
-        67890
+        BigInt(67890)
       );
 
       expect(signature).toBe('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b');
@@ -107,7 +108,7 @@ describe('StandardRegistry SDK', () => {
     test('should recover correct signer from provided signature', () => {
       // Test data provided by user
       const registering = true;
-      const nonce = 1743744596651;
+      const mockNonce = BigInt(1743744596651);
       const signature = '0x835cdaf7384aa7ad82559926e6dda6470c7ad368a354e019cbc4a59be0a9d95a52430d807d77bd490db70fdbf45056fca9dc4626b88b8e87ea06d37d187225f61b';
       const expectedSigner = '0x0970c10Ea0605dBD54564AcFcd93237865Ee7E13';
 
@@ -117,7 +118,7 @@ describe('StandardRegistry SDK', () => {
         chainId,
         registering,
         standard,
-        nonce
+        mockNonce
       );
 
       expect(typedDataHash).toBeDefined();
@@ -129,7 +130,7 @@ describe('StandardRegistry SDK', () => {
         chainId,
         registering,
         standard,
-        nonce,
+        mockNonce,
         signature
       );
 
@@ -152,7 +153,7 @@ describe('StandardRegistry SDK', () => {
 
     test('should get typed data hash using SDK class', () => {
       const sdk = new StandardRegistry(contractAddress, chainId);
-      const hash = sdk.getTypedDataHash(true, standard, 12345);
+      const hash = sdk.getTypedDataHash(true, standard, mockNonce);
 
       expect(hash).toBeDefined();
       expect(hash).toMatch(/^0x[a-fA-F0-9]{64}$/);
@@ -164,7 +165,7 @@ describe('StandardRegistry SDK', () => {
         mockSigner,
         true,
         standard,
-        67890
+        BigInt(67890)
       );
 
       expect(signature).toBe('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b');
@@ -173,7 +174,7 @@ describe('StandardRegistry SDK', () => {
 
     test('should recover signer using SDK class', () => {
       // Use the real world test data
-      const nonce = 1743744596651;
+      const mockNonce = BigInt(1743744596651);
       const signature = '0x835cdaf7384aa7ad82559926e6dda6470c7ad368a354e019cbc4a59be0a9d95a52430d807d77bd490db70fdbf45056fca9dc4626b88b8e87ea06d37d187225f61b';
       const expectedSigner = '0x0970c10Ea0605dBD54564AcFcd93237865Ee7E13';
 
@@ -181,7 +182,7 @@ describe('StandardRegistry SDK', () => {
       const recoveredSigner = sr.recoverSigner(
         true,
         standard,
-        nonce,
+        mockNonce,
         signature
       );
 

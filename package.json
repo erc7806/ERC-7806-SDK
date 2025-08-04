@@ -1,6 +1,6 @@
 {
   "name": "erc-7806-sdk",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "SDK for ERC-7806 StandardRegistry",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,6 +17,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "axios": "^1.11.0",
     "ethers": "^6.13.4"
   },
   "devDependencies": {

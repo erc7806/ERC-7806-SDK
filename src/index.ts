@@ -46,7 +46,18 @@ export { IERC20 } from './utils/erc20';
 export { buildRelayExecutionIntent } from './utils/relayExecution';
 
 // Constants
-export const SDK_VERSION = '0.0.4';
+export const SDK_VERSION = '0.0.6';
+
+// Export SwapHere API client and types
+export { SwapHereClient, defaultSwapHereClient } from './utils/swapHereApi';
+export type { SwapHereClientConfig } from './utils/swapHereApi';
+export type { 
+    UpgradeAccountRequest,
+    CreateRelayRequest,
+    CreateRelayResponse,
+    GetRelayResponse 
+} from './types/swapHereApi';
+export { BlockchainEnum } from './types/blockchain';
 
 // Import ethers and functions for the class implementation
 import { type Signer, type JsonRpcProvider } from 'ethers';
@@ -85,7 +96,7 @@ export class StandardRegistry {
   getTypedDataHash(
     registering: boolean,
     standard: string,
-    nonce: number
+    nonce: bigint
   ): string {
     return _getStandardRegistryTypedDataHash(
       this.contractAddress,
@@ -103,7 +114,7 @@ export class StandardRegistry {
     signer: Signer,
     registering: boolean,
     standard: string,
-    nonce: number
+    nonce: bigint
   ): Promise<[string, string]> {
     return _signStandardRegistryPermission(
       signer,
@@ -121,7 +132,7 @@ export class StandardRegistry {
   recoverSigner(
     registering: boolean,
     standard: string,
-    nonce: number,
+    nonce: bigint,
     signature: string
   ): string {
     return _recoverStandardRegistrySigner(
@@ -163,7 +174,7 @@ export class StandardRegistry {
   async registerStandard(
     signer: Signer,
     standardAddress: string,
-    nonce?: number
+    nonce?: bigint
   ) {
     return _registerStandard(
       signer,
@@ -179,7 +190,7 @@ export class StandardRegistry {
   async unregisterStandard(
     signer: Signer,
     standardAddress: string,
-    nonce?: number
+    nonce?: bigint
   ) {
     return _unregisterStandard(
       signer,
@@ -197,7 +208,7 @@ export class StandardRegistry {
     signerAddress: string,
     standardAddress: string,
     registering: boolean,
-    nonce: number,
+    nonce: bigint,
     signature: string
   ) {
     return _permitStandardRegistration(

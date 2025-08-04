@@ -59,7 +59,7 @@ export async function updateStandardRegistration(
     const tx = await standardRegistryContract.update(
       registering,
       standardAddress,
-      BigInt(nonce || Math.floor(Math.random() * 1000000000000000000))
+      nonce ?? BigInt(Math.floor(Math.random() * 1000000000000000000))
     );
     
     if (!tx) {
