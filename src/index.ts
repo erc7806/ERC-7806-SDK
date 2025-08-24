@@ -44,9 +44,10 @@ export { IERC20 } from './utils/erc20';
 
 // Relay Execution
 export { buildRelayExecutionIntent } from './utils/relayExecution';
+export { buildRelayExecutionIntent as buildRelayExecutionIntentWithTypedData } from './utils/relayExecutionWithTypedData';
 
 // Constants
-export const SDK_VERSION = '0.0.6';
+export const SDK_VERSION = '0.0.7';
 
 // Export SwapHere API client and types
 export { SwapHereClient, defaultSwapHereClient } from './utils/swapHereApi';

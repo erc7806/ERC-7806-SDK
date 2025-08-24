@@ -1,6 +1,6 @@
 {
   "name": "erc-7806-sdk",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "SDK for ERC-7806 StandardRegistry",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
