@@ -44,9 +44,10 @@ export class SwapHereClient {
      * @param request The upgrade request parameters
      * @throws {Error} If the request fails
      */
-    async upgradeAccount(blockchain: BlockchainEnum, request: UpgradeAccountRequest): Promise<void> {
+    async upgradeAccount(blockchain: BlockchainEnum, request: UpgradeAccountRequest): Promise<string> {
         try {
-            await this.client.post(`/api/${blockchain}/upgrade`, request);
+            const response = await this.client.post(`/api/${blockchain}/upgrade`, request);
+            return response.data;
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 throw new Error(`Failed to upgrade account: ${error.response?.data || error.message}`);

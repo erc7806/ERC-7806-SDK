@@ -47,7 +47,7 @@ export { buildRelayExecutionIntent } from './utils/relayExecution';
 export { buildRelayExecutionIntent as buildRelayExecutionIntentWithTypedData } from './utils/relayExecutionWithTypedData';
 
 // Constants
-export const SDK_VERSION = '0.0.7';
+export const SDK_VERSION = '0.0.9';
 
 // Export SwapHere API client and types
 export { SwapHereClient, defaultSwapHereClient } from './utils/swapHereApi';
